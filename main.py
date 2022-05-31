@@ -1,4 +1,5 @@
 import subprocess
+from urllib.error import HTTPError
 import pandas as pd
 import numpy as np
 import urllib.request as request
@@ -10,31 +11,59 @@ URL=[]
 package=[]
 version=[]
 version_satisfied=[]
+repourlfalse=[]
 inputcsv=None
-def returnjson(repURL):
-    with request.urlopen(repURL) as response:
-        if response.getcode() == 200:
-            source = response.read()
-            data = json.loads(source)
-        else:
-            print('404 error')
-    return data['dependencies']
+def returnjson(repURL,pname):
+    try:
+        with request.urlopen(repURL) as response:
+            if response.getcode() == 200:
+                source = response.read()
+                data = json.loads(source)
+                #print(data['dependencies'])
+                if data['dependencies'].__contains__(pname):
+                    print('dep')
+                    return data['dependencies']
+                elif data['devDependencies'].__contains__(pname):
+                    print('dev')
+                    return data['devDependencies']
+            else:
+                print('404 error')
+    except HTTPError:
+        print('404 error')
+def returnvalidurl(repURL):
+    try:
+        status_code = request.urlopen(repURL).getcode()
+        website_is_up = status_code == 200
+        return website_is_up
+    except HTTPError:
+        print('404 error')
 def readcsv(filename):
     global URL,inputcsv
     inputcsv=pd.read_csv(filename)  
-    #print(inputcsv)
+    print(inputcsv)
     name=inputcsv['name']
     n = np.array(name)
     rep=inputcsv['repo']
     r = np.array(rep)
     urlist=[]
     url1='https://raw.githubusercontent.com/'
-    for rep in r:
-        urlist.append(rep.replace("https://github.com/", ""))
+    for repi in r:
+        print(type(repi))
+        urlist.append(repi.replace("https://github.com/", ""))
     print(urlist)
     for u in urlist:
-        URL.append(url1+u+'main/package.json')
-    print(URL)
+        temp=url1+u+'main/package.json'
+        temp2=url1+u+'master/package.json'
+        print(temp)
+        print(temp2)
+        print(URL)
+        if returnvalidurl(temp):
+            print('valid-main')
+            URL.append(temp)
+        elif returnvalidurl(temp2):
+            print('valid-master')
+            URL.append(temp2)
+        
 def versioncomp(v1,v2):
     for i in range(len(v1)):
       if v1[i]>v2[i]:
@@ -46,7 +75,7 @@ def chkdep(package):
     global URL
     global pvlist
     for u in URL:
-        data=returnjson(u)
+        data=returnjson(u,package[0])
         pname=package[0]
         pver=package[1]
         datapv=data[pname]
@@ -84,7 +113,7 @@ def versionchecker(pver):
     #print(inverlist)
 
 def cmd2funcinput(cin):
-    x = re.search("^sdkak -i [a-z]*[A-Z]*\.csv [a-z]*[A-Z]*@{1}\d*\.\d*.\d*$", cin)
+    x = re.search("^sdkak -i [a-z]*[A-Z]*[0-9]*\.csv [a-z]*[A-Z]*@{1}\d*\.\d*.\d*$", cin)
     return x
 def cmd2funcupdate(cin):
     x = re.search("^sdkak -u [a-z]*[A-Z]*\.csv [a-z]*[A-Z]*@{1}\d*\.\d*.\d*$", cin)
@@ -100,8 +129,11 @@ try:
             readcsv(listofcmd[2])
             package=listofcmd[3].split('@')
             chkdep(package)
-            
-
+        elif cmd2funcupdate(cmdin):
+            print(inputcsv)
+            repourlfalse=inputcsv[['repo','version_satisfied']].query('version_satisfied == "False"')['repo']
+            repourlist=np.array(repourlfalse)
+            print(repourlfalse)
         """ listofcmd=cmdin.split(' ')
         p1 = subprocess.Popen(listofcmd, stdout=subprocess.PIPE, 
         stderr=subprocess.PIPE,shell=True)
