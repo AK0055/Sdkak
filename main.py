@@ -124,14 +124,33 @@ def cmd2funcupdate(cin):
     return x
 #print(n[0])
 #print(r)
-def gitclone(repourlist):
-    for r in repourlist:
+def execcmd(listofcmd):
+    p1 = subprocess.Popen(listofcmd, stdout=subprocess.PIPE, 
+    stderr=subprocess.PIPE,shell=True)
+    out1, err = p1.communicate()
+    print('-------------')
+    print(out1.decode('utf-8'))
+def gitclone(repourlist,reponame):
+    for r,n in zip(repourlist, reponame):
         listofcmd=['git','clone',r]
-        p1 = subprocess.Popen(listofcmd, stdout=subprocess.PIPE, 
-        stderr=subprocess.PIPE,shell=True)
-        out1, err = p1.communicate()
-        print('-------------')
-        print(out1.decode('utf-8'))
+        execcmd(listofcmd)
+        cdpath=['cd',n]
+        execcmd(cdpath)
+        createbranch='git checkout -b new_branch' 
+        execcmd(createbranch.split(" "))
+        addupst='git remote add upstream'+r
+        execcmd(addupst.split(" "))
+        cdpathback=['cd','..']
+        execcmd(cdpathback)
+def gitcommitpush(reponame):
+    cdpath=['cd',reponame]
+    execcmd(cdpath)
+    gitadd='git add .' 
+    execcmd(gitadd.split(" "))
+    comit='git commit -S -m "Modiying package.json"'
+    execcmd(comit.split(" "))
+    push='git push -u origin new_branch'
+    execcmd(push.split(" "))
 def modifyjson(filepath,pname,pvalue):
     with open(filepath+'/package.json') as f:
         data = json.load(f)
@@ -144,7 +163,7 @@ def modifyjson(filepath,pname,pvalue):
             data['devDependencies'][pname] = pvalue
             
         try:
-            print('indent 4')
+            print('Package.JSON modified for '+filepath)
             json.dump(data, open(filepath+'/package.json','w'), indent = 4)
         except json.decoder.JSONDecodeError:
             print('Invalid json encoding')
@@ -167,9 +186,10 @@ try:
             reponamelist=np.array(reponamefalse)
             print(repourlist)
             print(reponamelist)
-            gitclone(repourlist)
+            gitclone(repourlist,reponamelist)
             for i in reponamelist:
                 modifyjson(i,package[0],package[1])
+                gitcommitpush(i)
             
         listofcmd=[]
         pvlist=[]
