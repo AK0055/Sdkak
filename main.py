@@ -1,3 +1,4 @@
+import random
 import subprocess
 from urllib.error import HTTPError
 import pandas as pd
@@ -5,6 +6,7 @@ import numpy as np
 import urllib.request as request
 import json
 import re
+import os
 #print('Welcome to Sdkak, a dependency manager')
 pvlist=[]
 URL=[]
@@ -127,29 +129,40 @@ def cmd2funcupdate(cin):
 def execcmd(listofcmd):
     p1 = subprocess.Popen(listofcmd, stdout=subprocess.PIPE, 
     stderr=subprocess.PIPE,shell=True)
+    print(" ".join(listofcmd))
     out1, err = p1.communicate()
     print('-------------')
     print(out1.decode('utf-8'))
 def gitclone(repourlist,reponame):
     for r,n in zip(repourlist, reponame):
-        listofcmd=['git','clone',r]
-        execcmd(listofcmd)
-        cdpath=['cd',n]
-        execcmd(cdpath)
-        createbranch='git checkout -b new_branch' 
-        execcmd(createbranch.split(" "))
-        addupst='git remote add upstream'+r
-        execcmd(addupst.split(" "))
-        cdpathback=['cd','..']
-        execcmd(cdpathback)
+        """ listofcmd=['git','clone',r]
+        execcmd(listofcmd) """
+        os.system('git clone '+r)
+        print(n)
+def gitbranch(n,url):
+    replaced = '.git'
+    url = url[:-1] + replaced
+    print(url)
+    os.chdir(n)
+    print("Current working directory: {0}".format(os.getcwd()))
+    os.system('git checkout -b '+n+'branch')
+    os.system('git branch')
+    """ createbranch='git checkout -b branchabcd'
+    execcmd(createbranch.split(" ")) """
+    """ cdpathback=['cd','..']
+    execcmd(cdpathback) """
+    os.system('git add .')
+    os.system('git commit -m "Test: Modifying package.json"')
+    os.system('git push '+url+' '+n+'branch')
+    os.system('cd ..')
 def gitcommitpush(reponame):
     cdpath=['cd',reponame]
     execcmd(cdpath)
     gitadd='git add .' 
     execcmd(gitadd.split(" "))
-    comit='git commit -S -m "Modiying package.json"'
+    comit='git commit -m "Modifying package.json"'
     execcmd(comit.split(" "))
-    push='git push -u origin new_branch'
+    push='git push -u origin'+reponame+'branch'
     execcmd(push.split(" "))
 def modifyjson(filepath,pname,pvalue):
     with open(filepath+'/package.json') as f:
@@ -169,7 +182,7 @@ def modifyjson(filepath,pname,pvalue):
             print('Invalid json encoding')
 try:
     while True:
-        cmdin=input('>>>')
+        cmdin=input('>>> ')
         if cmd2funcinput(cmdin):
             listofcmd=cmdin.split(' ')
             print(listofcmd)
@@ -187,9 +200,11 @@ try:
             print(repourlist)
             print(reponamelist)
             gitclone(repourlist,reponamelist)
-            for i in reponamelist:
+            for i,j in zip(reponamelist,repourlist):
                 modifyjson(i,package[0],package[1])
-                gitcommitpush(i)
+                gitbranch(i,j)
+                os.chdir('../')
+                #gitcommitpush(i)
             
         listofcmd=[]
         pvlist=[]
