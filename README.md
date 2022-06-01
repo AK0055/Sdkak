@@ -133,20 +133,20 @@ Given below are some easy to use commands to help you get started with using the
 <!-- ROADMAP -->
 ## Roadmap
 
-- [ ] Version match status
-    - [ ] Initialise repositories from CSV
-    - [ ] Fetch remote package.json contents for dependency provided in commandline
-    - [ ] Compare versions
+- [x] Version match status
+    - [x] Initialise repositories from CSV
+    - [x] Fetch remote package.json contents for dependency provided in commandline
+    - [x] Compare versions
 - [ ] Version update and PR
-    - [ ] Clone repositories
-    - [ ] Create a new branch for each repository
-    - [ ] Modify package.json contents for dependency provided in commandline
-    - [ ] Commit changes
+    - [x] Clone repositories
+    - [x] Create a new branch for each repository
+    - [x] Modify package.json contents for dependency provided in commandline
+    - [x] Commit changes
     - [ ] Push changes to remote
-- [ ] Add repositories to CSV
-    - [ ] Get repository name from command
-    - [ ] Generate github URL for the repository
-    - [ ] Append contents to CSV file
-- [ ] Check latest version of a package
-    - [ ] Get package name from command
-    - [ ] Fetch latest version in remote for the package
+- [x] Add repositories to CSV
+    - [x] Get repository name from command
+    - [x] Generate github URL for the repository
+    - [x] Append contents to CSV file
+- [x] Check latest version of a package
+    - [x] Get package name from command
+    - [x] Fetch latest version in remote for the package
