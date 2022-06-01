@@ -1,7 +1,7 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <a href="https://github.com/dyte-submissions/dyte-vit-2022-AK0055">
+  <a href="https://github.com/AK0055/Sdkak">
     <img src="images/logo.png" alt="Logo" width="80" height="80">
   </a>
 
@@ -10,12 +10,12 @@
   <p align="center">
     A Python-based CLI tool for Package version management
     <br />
-    <a href="https://github.com/dyte-submissions/dyte-vit-2022-AK0055"><strong>Explore the docs »</strong></a>
+    <a href="https://github.com/AK0055/Sdkak"><strong>Explore the docs »</strong></a>
     <br />
     ·
-    <a href="https://github.com/dyte-submissions/dyte-vit-2022-AK0055/issues">Report Bug</a>
+    <a href="https://github.com/AK0055/Sdkak/issues">Report Bug</a>
     ·
-    <a href=https://github.com/dyte-submissions/dyte-vit-2022-AK0055/issues">Request Feature</a>
+    <a href=https://github.com/AK0055/Sdkak/issues">Request Feature</a>
   </p>
 </div>
 
@@ -75,7 +75,7 @@ Given below are some easy to use commands to help you get started with using the
 ### Installation and Prerequisites
 1. Clone the repo
     ```sh
-     git clone https://github.com/dyte-submissions/dyte-vit-2022-AK0055.git
+     git clone https://github.com/AK0055/Sdkak.git
     ```
 2. Install module dependencies
     ```sh
@@ -104,7 +104,7 @@ Given below are some easy to use commands to help you get started with using the
 ## Usage
 1. Start the application using
 ```sh
-  cd dyte-vit-2022-AK0055
+  cd Sdkak
   python3 main.py
   ```
 2. Initialise the repositories in the CSV file present at root directory with the dependency and version you want to check
