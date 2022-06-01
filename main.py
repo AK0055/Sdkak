@@ -179,11 +179,11 @@ def gitbranch(n,url):
 def modifyjson(filepath,pname,pvalue):
     with open(filepath+'/package.json') as f:
         data = json.load(f)
-        if data['dependencies'].__contains__(pname):
+        if 'dependencies' in data.keys() and data['dependencies'].__contains__(pname):
             print(filepath+' in dependencies is modified')
             data['dependencies'][pname] = pvalue
             
-        elif data['devDependencies'].__contains__(pname):
+        elif 'devDependencies' in data.keys() and data['devDependencies'].__contains__(pname):
             print(filepath+' in devDependencies is modified')
             data['devDependencies'][pname] = pvalue
             
