@@ -58,6 +58,7 @@ To make it easier for developers to manage and update package dependencies for m
 - [Python](https://www.python.org/)
 - [NPM](https://www.npmjs.com/)
 - [Git](https://git-scm.com/)
+- [GitHub CLI](https://github.com/cli/cli/)
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 <!-- GETTING STARTED -->
@@ -76,7 +77,8 @@ Given below are some easy to use commands to help you get started with using the
      pip install -r requirements.txt
     ```
 3. NodeJS and NPM should be installed and configured
-4. An Input CSV file present in root of project with the following structure
+4. GitHub CLI package must be installed and configured
+5. An Input CSV file present in root of project with the following structure
     <table>
     <tr>
       <th><b>name</b></th>
@@ -109,7 +111,7 @@ Given below are some easy to use commands to help you get started with using the
 ```sh
   sdkak -add <your-csv>.csv <git-username>/<repository-name>
   ```
-4. Cloning individual repositories for those having outdated versions, creating a new branch, modify dependency to version specified in CLI and creating a PR
+4. Authenticating GitHub, cloning individual repositories for those having outdated versions, creating a new branch, modify dependency to version specified in CLI and creating a PR
 ```sh
   sdkak -u <your-csv>.csv <dependency-name>@<dependency-version>
   ```
@@ -131,12 +133,14 @@ Given below are some easy to use commands to help you get started with using the
     - [x] Initialise repositories from CSV
     - [x] Fetch remote package.json contents for dependency provided in commandline
     - [x] Compare versions
-- [ ] Version update and PR
+- [x] Version update and PR
+    - [x] GitHub user authentication
     - [x] Clone repositories
     - [x] Create a new branch for each repository
     - [x] Modify package.json contents for dependency provided in commandline
     - [x] Commit changes
-    - [ ] Push changes to remote
+    - [x] Push changes to remote
+    - [x] Create PR
 - [x] Add repositories to CSV
     - [x] Get repository name from command
     - [x] Generate github URL for the repository
