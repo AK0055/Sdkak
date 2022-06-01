@@ -2,7 +2,6 @@
 <br />
 <div align="center">
   <a href="https://github.com/AK0055/Sdkak">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
   </a>
 
 <h3 align="center">SDKak</h3>
