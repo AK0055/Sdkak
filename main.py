@@ -5,7 +5,9 @@ import urllib.request as request
 import json
 import re
 import os
-print('Welcome to SDKak, A Package Dependency Manager')
+from csv import writer
+width = os.get_terminal_size().columns
+print('Welcome to SDKak, A Package Dependency Manager'.center(width))
 pvlist=[]
 URL=[]
 package=[]
@@ -23,10 +25,10 @@ def returnjson(repURL,pname):
             if response.getcode() == 200:
                 source = response.read()
                 data = json.loads(source)
-                if data['dependencies'].__contains__(pname):
+                if 'dependencies' in data.keys() and data['dependencies'].__contains__(pname):
                     #print('dep')
                     return data['dependencies']
-                elif data['devDependencies'].__contains__(pname):
+                elif 'devDependencies' in data.keys() and data['devDependencies'].__contains__(pname):
                     #print('dev')
                     return data['devDependencies']
             else:
@@ -34,7 +36,7 @@ def returnjson(repURL,pname):
     except HTTPError:
         print('404 error')
 
-#Check if the URL is valid    
+#Check if the URL for branch is valid    
 def returnvalidurl(repURL):
     try:
         status_code = request.urlopen(repURL).getcode()
@@ -46,7 +48,7 @@ def returnvalidurl(repURL):
 #Input CSV and fetch data rows, process URL to get JSON data
 def read_process_csv(filename):
     global URL,inputcsv,clonename
-    inputcsv=pd.read_csv(filename)  
+    inputcsv=pd.read_csv(filename)
     name=inputcsv['name']
     n = np.array(name)
     rep=inputcsv['repo']
@@ -68,6 +70,21 @@ def read_process_csv(filename):
             print('valid branch-master')
             URL.append(temp2)
 
+#Function to return the latest version of given package
+def returnlatestversion(packagename):
+    os.system('npm view '+packagename+' version')
+#Function to add repo name from CLI and init to CSV
+def addrepo(reponamein,filename):
+    listofrepin=reponamein.split('/')
+    rname=listofrepin[1]
+    urlgen='https://github.com/'+reponamein+'/'
+    addlist=[rname,urlgen]
+    with open(filename, 'a', newline='') as f_object: 
+        print('Repository added') 
+        writer_object = writer(f_object)
+        writer_object.writerow(addlist)  
+        f_object.close()
+    
 #Function to compare two versions        
 def versioncomp(v1,v2):
     for i in range(len(v1)):
@@ -93,7 +110,7 @@ def chkdep(package):
             datapv=datapv.replace("~","")
         #print(datapv)
         pvlist.append(datapv)
-    versionchecker(pver)\
+    versionchecker(pver)
 
 #Compare version in remote and version specified by command
 def versionchecker(pver):
@@ -106,17 +123,17 @@ def versionchecker(pver):
         flag=versioncomp(verlist,inverlist)
         version.append(v)
         if flag < 0:
-            print ("version in github is smaller")
+            print ("version in github is older")
             version_satisfied.append('False')
         elif flag > 0:
-            print ("version in github is larger")
+            print ("version in github is newer")
             version_satisfied.append('True')
         else:
             print ("Both versions are equal")
             version_satisfied.append('True')
     inputcsv['version']=version
     inputcsv['version_satisfied']=version_satisfied
-    print(inputcsv.head())
+    print(inputcsv.head(20))
     
 #Function syntax to initialise and get version matching status from a CSV
 def cmd2funcinput(cin):
@@ -126,7 +143,18 @@ def cmd2funcinput(cin):
 def cmd2funcupdate(cin):
     x = re.search("^sdkak -u [a-z]*[A-Z]*[0-9]*\.csv [a-z]*[A-Z]*@{1}\d*\.\d*.\d*$", cin)
     return x
-
+#Function syntax to get latest version of the package in remote
+def cmd2funclatest(cin):
+    x = re.search("^sdkak -show-latest [a-z]*[A-Z]*$", cin)
+    return x
+#Function syntax to add repo name from CLI and init to CSV
+def cmd2funcadd(cin):
+    x = re.search("^sdkak -add [a-z]*[A-Z]*[0-9]*\.csv [a-zA-Z0-9\-]*\/[a-zA-Z0-9\-]*$", cin)
+    return x
+#Function to help with commands
+def cmd2funchelp(cin):
+    x = re.search("^sdkak -help$", cin)
+    return x
 #Function to clone the git repo from remote
 def gitclone(repourlist,reponame):
     for r,n in zip(repourlist, reponame):
@@ -152,11 +180,11 @@ def modifyjson(filepath,pname,pvalue):
     with open(filepath+'/package.json') as f:
         data = json.load(f)
         if data['dependencies'].__contains__(pname):
-            print(filepath+' in dependencies')
+            print(filepath+' in dependencies is modified')
             data['dependencies'][pname] = pvalue
             
         elif data['devDependencies'].__contains__(pname):
-            print(filepath+' in devdependencies')
+            print(filepath+' in devDependencies is modified')
             data['devDependencies'][pname] = pvalue
             
         try:
@@ -164,10 +192,19 @@ def modifyjson(filepath,pname,pvalue):
             json.dump(data, open(filepath+'/package.json','w'), indent = 4)
         except json.decoder.JSONDecodeError:
             print('Invalid json encoding')
-
+def cmdhelp():
+    print('--> Version match status:')   
+    print('sdkak -i <your-csv>.csv <dependency-name>@<dependency-version>')
+    print('--> Add repositories to CSV:')
+    print('sdkak -add <your-csv>.csv <git-username>/<repository-name>')
+    print('--> Version update and PR:')
+    print('sdkak -u <your-csv>.csv <dependency-name>@<dependency-version>')
+    print('--> Check latest version of a package:')
+    print('sdkak -show-latest <dependency-name>')
 # Driver
 try:
     while True:
+        print('For help with commands use "sdkak -help"')    
         cmdin=input('>>> ')
         #Initialise, fetch JSON and compare versions
         if cmd2funcinput(cmdin):
@@ -189,7 +226,15 @@ try:
                 gitbranch(i,j)
                 os.chdir('../')
                 #gitcommitpush(i)
-            
+        elif cmd2funclatest(cmdin):
+            packagename=cmdin.split(' ')[2]
+            returnlatestversion(packagename.lower())
+        elif cmd2funcadd(cmdin):
+            filename=cmdin.split(' ')[2]
+            repoinput=cmdin.split(' ')[3]
+            addrepo(repoinput,filename)
+        elif cmd2funchelp(cmdin):
+            cmdhelp()
         listofcmd=[]
         pvlist=[]
         URL=[]
@@ -199,7 +244,7 @@ try:
         repourlfalse=[]
         reponamefalse=[]
         clonename=[]
-        inputcsv=None
+        #inputcsv=None
         print('Press Ctrl-C to exit')
 
 
