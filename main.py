@@ -1,5 +1,3 @@
-import random
-import subprocess
 from urllib.error import HTTPError
 import pandas as pd
 import numpy as np
@@ -7,7 +5,7 @@ import urllib.request as request
 import json
 import re
 import os
-#print('Welcome to Sdkak, a dependency manager')
+print('Welcome to SDKak, A Package Dependency Manager')
 pvlist=[]
 URL=[]
 package=[]
@@ -17,6 +15,8 @@ repourlfalse=[]
 reponamefalse=[]
 clonename=[]
 inputcsv=None
+
+#Returns dependency specified in command inside package.json given in the URL
 def returnjson(repURL,pname):
     try:
         with request.urlopen(repURL) as response:
@@ -33,43 +33,42 @@ def returnjson(repURL,pname):
                 print('404 error')
     except HTTPError:
         print('404 error')
+
+#Check if the URL is valid    
 def returnvalidurl(repURL):
     try:
         status_code = request.urlopen(repURL).getcode()
         website_is_up = status_code == 200
         return website_is_up
     except HTTPError:
-        print('404 error, trying alternate branch')
-def readcsv(filename):
+        print('404 error, trying alternate branch-master')
+
+#Input CSV and fetch data rows, process URL to get JSON data
+def read_process_csv(filename):
     global URL,inputcsv,clonename
     inputcsv=pd.read_csv(filename)  
-    #print(inputcsv)
     name=inputcsv['name']
     n = np.array(name)
     rep=inputcsv['repo']
     r = np.array(rep)
     urlist=[]
+    #Create a RAW URL path from github repo URL to fetch JSON data
     url1='https://raw.githubusercontent.com/'
     for repi in r:
-        #print(type(repi))
         clonename.append(repi.split('/')[4])
-        print(clonename)
         urlist.append(repi.replace("https://github.com/", ""))
-    print(urlist)
     inputcsv['clonename']=clonename
     for u in urlist:
         temp=url1+u+'main/package.json'
         temp2=url1+u+'master/package.json'
-        """ print(temp)
-        print(temp2)
-        print(URL) """
         if returnvalidurl(temp):
-            print('valid-main')
+            print('valid branch-main')
             URL.append(temp)
         elif returnvalidurl(temp2):
-            print('valid-master')
+            print('valid branch-master')
             URL.append(temp2)
-        
+
+#Function to compare two versions        
 def versioncomp(v1,v2):
     for i in range(len(v1)):
       if v1[i]>v2[i]:
@@ -77,6 +76,8 @@ def versioncomp(v1,v2):
       elif v2[i]>v1[i]:
          return -1
     return 0
+
+#Function to process version numbers and compare from given URL
 def chkdep(package):
     global URL
     global pvlist
@@ -85,14 +86,16 @@ def chkdep(package):
         pname=package[0]
         pver=package[1]
         datapv=data[pname]
-        
+        #remove dependency prefixes
         if re.search("^\^", datapv):
             datapv=datapv.replace("^","")
         elif re.search("^~", datapv):
             datapv=datapv.replace("~","")
-        print(datapv)
+        #print(datapv)
         pvlist.append(datapv)
-    versionchecker(pver)
+    versionchecker(pver)\
+
+#Compare version in remote and version specified by command
 def versionchecker(pver):
     global version,version_satisfied,inputcsv
     for v in pvlist:
@@ -111,34 +114,26 @@ def versionchecker(pver):
         else:
             print ("Both versions are equal")
             version_satisfied.append('True')
-    print(version_satisfied)
     inputcsv['version']=version
     inputcsv['version_satisfied']=version_satisfied
     print(inputcsv.head())
-    #print(verlist)
-    #print(inverlist)
-
+    
+#Function syntax to initialise and get version matching status from a CSV
 def cmd2funcinput(cin):
     x = re.search("^sdkak -i [a-z]*[A-Z]*[0-9]*\.csv [a-z]*[A-Z]*@{1}\d*\.\d*.\d*$", cin)
     return x
+#Function syntax to update the version of the outdated version in remote origin and create PR
 def cmd2funcupdate(cin):
     x = re.search("^sdkak -u [a-z]*[A-Z]*[0-9]*\.csv [a-z]*[A-Z]*@{1}\d*\.\d*.\d*$", cin)
     return x
-#print(n[0])
-#print(r)
-def execcmd(listofcmd):
-    p1 = subprocess.Popen(listofcmd, stdout=subprocess.PIPE, 
-    stderr=subprocess.PIPE,shell=True)
-    print(" ".join(listofcmd))
-    out1, err = p1.communicate()
-    print('-------------')
-    print(out1.decode('utf-8'))
+
+#Function to clone the git repo from remote
 def gitclone(repourlist,reponame):
     for r,n in zip(repourlist, reponame):
-        """ listofcmd=['git','clone',r]
-        execcmd(listofcmd) """
         os.system('git clone '+r)
-        print(n)
+        print(n+' has been cloned')
+
+#Function to create branch, commit and push changes to remote
 def gitbranch(n,url):
     replaced = '.git'
     url = url[:-1] + replaced
@@ -147,32 +142,21 @@ def gitbranch(n,url):
     print("Current working directory: {0}".format(os.getcwd()))
     os.system('git checkout -b '+n+'branch')
     os.system('git branch')
-    """ createbranch='git checkout -b branchabcd'
-    execcmd(createbranch.split(" ")) """
-    """ cdpathback=['cd','..']
-    execcmd(cdpathback) """
     os.system('git add .')
     os.system('git commit -m "Test: Modifying package.json"')
     os.system('git push '+url+' '+n+'branch')
     os.system('cd ..')
-def gitcommitpush(reponame):
-    cdpath=['cd',reponame]
-    execcmd(cdpath)
-    gitadd='git add .' 
-    execcmd(gitadd.split(" "))
-    comit='git commit -m "Modifying package.json"'
-    execcmd(comit.split(" "))
-    push='git push -u origin'+reponame+'branch'
-    execcmd(push.split(" "))
+
+#Function to modify the package.json dependency version from commandline
 def modifyjson(filepath,pname,pvalue):
     with open(filepath+'/package.json') as f:
         data = json.load(f)
         if data['dependencies'].__contains__(pname):
-            print(filepath+' dependencies')
+            print(filepath+' in dependencies')
             data['dependencies'][pname] = pvalue
             
         elif data['devDependencies'].__contains__(pname):
-            print(filepath+' devdependencies')
+            print(filepath+' in devdependencies')
             data['devDependencies'][pname] = pvalue
             
         try:
@@ -180,25 +164,25 @@ def modifyjson(filepath,pname,pvalue):
             json.dump(data, open(filepath+'/package.json','w'), indent = 4)
         except json.decoder.JSONDecodeError:
             print('Invalid json encoding')
+
+# Driver
 try:
     while True:
         cmdin=input('>>> ')
+        #Initialise, fetch JSON and compare versions
         if cmd2funcinput(cmdin):
             listofcmd=cmdin.split(' ')
-            print(listofcmd)
-            readcsv(listofcmd[2])
+            read_process_csv(listofcmd[2])
             package=listofcmd[3].split('@')
             chkdep(package)
+        #Clone repo, update outdated version to specified version, commit changes and create PR
         elif cmd2funcupdate(cmdin):
-            #print(inputcsv)
             listofcmd=cmdin.split(' ')
             package=listofcmd[3].split('@')
             repourlfalse=inputcsv[['repo','version_satisfied']].query('version_satisfied == "False"')['repo']
             reponamefalse=inputcsv[['name','repo','version_satisfied','clonename']].query('version_satisfied == "False"')['clonename']
             repourlist=np.array(repourlfalse)
             reponamelist=np.array(reponamefalse)
-            print(repourlist)
-            print(reponamelist)
             gitclone(repourlist,reponamelist)
             for i,j in zip(reponamelist,repourlist):
                 modifyjson(i,package[0],package[1])
@@ -214,6 +198,10 @@ try:
         version_satisfied=[]
         repourlfalse=[]
         reponamefalse=[]
+        clonename=[]
+        inputcsv=None
+        print('Press Ctrl-C to exit')
+
 
         
 
