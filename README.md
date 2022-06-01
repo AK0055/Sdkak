@@ -1,7 +1,7 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <a href="https://github.com/dyte-submissions/dyte-vit-2022-AK0055">
+  <a href="https://github.com/AK0055/Sdkak">
     <img src="images/logo.png" alt="Logo" width="80" height="80">
   </a>
 
@@ -10,12 +10,12 @@
   <p align="center">
     A Python-based CLI tool for Package version management
     <br />
-    <a href="https://github.com/dyte-submissions/dyte-vit-2022-AK0055"><strong>Explore the docs »</strong></a>
+    <a href="https://github.com/AK0055/Sdkak"><strong>Explore the docs »</strong></a>
     <br />
     ·
-    <a href="https://github.com/dyte-submissions/dyte-vit-2022-AK0055/issues">Report Bug</a>
+    <a href="https://github.com/AK0055/Sdkak/issues">Report Bug</a>
     ·
-    <a href=https://github.com/dyte-submissions/dyte-vit-2022-AK0055/issues">Request Feature</a>
+    <a href=https://github.com/AK0055/Sdkak/issues">Request Feature</a>
   </p>
 </div>
 
@@ -75,7 +75,7 @@ Given below are some easy to use commands to help you get started with using the
 ### Installation and Prerequisites
 1. Clone the repo
     ```sh
-     git clone https://github.com/dyte-submissions/dyte-vit-2022-AK0055.git
+     git clone https://github.com/AK0055/Sdkak.git
     ```
 2. Install module dependencies
     ```sh
@@ -104,7 +104,7 @@ Given below are some easy to use commands to help you get started with using the
 ## Usage
 1. Start the application using
 ```sh
-  cd dyte-vit-2022-AK0055
+  cd Sdkak
   python3 main.py
   ```
 2. Initialise the repositories in the CSV file present at root directory with the dependency and version you want to check
@@ -133,20 +133,20 @@ Given below are some easy to use commands to help you get started with using the
 <!-- ROADMAP -->
 ## Roadmap
 
-- [ ] Version match status
-    - [ ] Initialise repositories from CSV
-    - [ ] Fetch remote package.json contents for dependency provided in commandline
-    - [ ] Compare versions
+- [x] Version match status
+    - [x] Initialise repositories from CSV
+    - [x] Fetch remote package.json contents for dependency provided in commandline
+    - [x] Compare versions
 - [ ] Version update and PR
-    - [ ] Clone repositories
-    - [ ] Create a new branch for each repository
-    - [ ] Modify package.json contents for dependency provided in commandline
-    - [ ] Commit changes
+    - [x] Clone repositories
+    - [x] Create a new branch for each repository
+    - [x] Modify package.json contents for dependency provided in commandline
+    - [x] Commit changes
     - [ ] Push changes to remote
-- [ ] Add repositories to CSV
-    - [ ] Get repository name from command
-    - [ ] Generate github URL for the repository
-    - [ ] Append contents to CSV file
-- [ ] Check latest version of a package
-    - [ ] Get package name from command
-    - [ ] Fetch latest version in remote for the package
+- [x] Add repositories to CSV
+    - [x] Get repository name from command
+    - [x] Generate github URL for the repository
+    - [x] Append contents to CSV file
+- [x] Check latest version of a package
+    - [x] Get package name from command
+    - [x] Fetch latest version in remote for the package
