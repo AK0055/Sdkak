@@ -2,7 +2,6 @@
 <br />
 <div align="center">
   <a href="https://github.com/AK0055/Sdkak">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
   </a>
 
 <h3 align="center">SDKak</h3>
@@ -10,12 +9,7 @@
   <p align="center">
     A Python-based CLI tool for Package version management
     <br />
-    <a href="https://github.com/AK0055/Sdkak"><strong>Explore the docs »</strong></a>
-    <br />
-    ·
-    <a href="https://github.com/AK0055/Sdkak/issues">Report Bug</a>
-    ·
-    <a href=https://github.com/AK0055/Sdkak/issues">Request Feature</a>
+ 
   </p>
 </div>
 
@@ -51,7 +45,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-![Matches](images/sdkak.png)
+![Project](images/sdkak1.png)
 
 To make it easier for developers to manage and update package dependencies for multiple projects, this project helps in minimising efforts through use of simple yet powerful commands to add repositories, check version status, modify dependencies and commit changes to each of remote repositories. Users can also check the latest version of a package in remote.
 
