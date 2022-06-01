@@ -1,3 +1,4 @@
+import subprocess
 from urllib.error import HTTPError
 import pandas as pd
 import numpy as np
@@ -18,6 +19,14 @@ reponamefalse=[]
 clonename=[]
 inputcsv=None
 
+#Get Authenticated Username
+def getlogin():
+    output = subprocess.check_output('gh api -H "Accept: application/vnd.github.v3+json" /user', shell=True)
+    authjson=json.loads(output.decode())
+    if 'login' in authjson.keys():
+        return authjson['login']
+    elif 'message' in authjson.keys():
+        return 0
 #Returns dependency specified in command inside package.json given in the URL
 def returnjson(repURL,pname):
     try:
@@ -158,7 +167,11 @@ def cmd2funchelp(cin):
 #Function to clone the git repo from remote
 def gitclone(repourlist,reponame):
     for r,n in zip(repourlist, reponame):
-        os.system('git clone '+r)
+        os.system('gh auth login --web')
+        replaced = '.git'
+        r = r[:-1] + replaced
+        os.system('gh repo fork '+r+' --clone')
+
         print(n+' has been cloned')
 
 #Function to create branch, commit and push changes to remote
@@ -172,7 +185,12 @@ def gitbranch(n,url):
     os.system('git branch')
     os.system('git add .')
     os.system('git commit -m "Test: Modifying package.json"')
-    os.system('git push '+url+' '+n+'branch')
+    os.system('git push -u origin '+n+'branch')
+    print(n+' is ready to PR')
+    if getlogin()!=0:
+        prurl='https://github.com/'+getlogin()+'/'+n+'/pull/new/'+n+'branch'
+        print(prurl)
+        inputcsv.loc[(inputcsv.version_satisfied == 'False')&(inputcsv.clonename== n), 'update_pr'] = prurl
     os.system('cd ..')
 
 #Function to modify the package.json dependency version from commandline
@@ -192,6 +210,8 @@ def modifyjson(filepath,pname,pvalue):
             json.dump(data, open(filepath+'/package.json','w'), indent = 4)
         except json.decoder.JSONDecodeError:
             print('Invalid json encoding')
+
+
 def cmdhelp():
     print('--> Version match status:')   
     print('sdkak -i <your-csv>.csv <dependency-name>@<dependency-version>')
@@ -225,7 +245,7 @@ try:
                 modifyjson(i,package[0],package[1])
                 gitbranch(i,j)
                 os.chdir('../')
-                #gitcommitpush(i)
+            print(inputcsv.head(20))
         elif cmd2funclatest(cmdin):
             packagename=cmdin.split(' ')[2]
             returnlatestversion(packagename.lower())
